@@ -3,14 +3,16 @@
 
 const char* ssid     = "modulab";
 const char* password = "P@rola5#";
-const char* host = "192.168.2.103";
+const char* host = "192.168.2.104";
 
 hw_timer_t * timer = NULL;
 volatile uint64_t timex;
 volatile uint64_t timeStart;
 volatile uint64_t timeStop;
 
-int x,y;
+volatile uint64_t dif;
+
+uint64_t x,y;
 int ax=0;
     WiFiClient client;
 
@@ -137,15 +139,24 @@ ax=2;
 
 
 
+
 if (timex < 800 && timex >100 && ax!=0) {
   //client.print(uint64ToString(timeStart-x));
+  dif = timeStart-x;
+  if (dif > 400000) {
+    ax=0;
+    client.print("XXXX " + uint64ToString(timeStart) + " " + uint64ToString(x));
+    //timex=0;
+  } else
   if (ax==1) {
-    client.print("d" + uint64ToString(timeStart-x));
+    client.print("d" + uint64ToString(dif));
   } else if (ax==2) {
-  client.print("D" + uint64ToString(timeStart-x));
+  client.print("D" + uint64ToString(dif));
   }
 ax=0;
 }
+
+//timex = 0;
 
 //sleep(1);
 //client.print("Sync!");
