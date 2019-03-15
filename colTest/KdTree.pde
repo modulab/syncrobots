@@ -46,7 +46,7 @@ class KdTree {
     /**
      * Defines a node of an agent k-D tree.
      */
-    private static class AgentTreeNode {
+    private class AgentTreeNode {
         int begin = 0;
         int end = 0;
         int left = 0;
@@ -60,7 +60,7 @@ class KdTree {
     /**
      * Defines a node of an obstacle k-D tree.
      */
-    private static class ObstacleTreeNode {
+    private  class ObstacleTreeNode {
         Obstacle obstacle = null;
         ObstacleTreeNode left = null;
         ObstacleTreeNode right = null;
@@ -79,11 +79,11 @@ class KdTree {
      * Builds an agent k-D tree.
      */
     void buildAgentTree() {
-        if (agents == null || agents.length != Simulator.instance.agents.size()) {
-            agents = new Agent[Simulator.instance.agents.size()];
+        if (agents == null || agents.length != instance.agents.size()) {
+            agents = new Agent[instance.agents.size()];
 
             for (int agentNo = 0; agentNo < agents.length; agentNo++) {
-                agents[agentNo] = Simulator.instance.agents.get(agentNo);
+                agents[agentNo] = instance.agents.get(agentNo);
             }
 
             agentTree = new AgentTreeNode[2 * agents.length];
@@ -104,10 +104,10 @@ class KdTree {
     void buildObstacleTree() {
         obstacleTree = new ObstacleTreeNode();
 
-        final List<Obstacle> obstacles = new ArrayList<Obstacle>(Simulator.instance.obstacles.size());
+        final List<Obstacle> obstacles = new ArrayList<Obstacle>(instance.obstacles.size());
 
-        for (int obstacleNo = 0; obstacleNo < Simulator.instance.obstacles.size(); obstacleNo++) {
-            obstacles.add(Simulator.instance.obstacles.get(obstacleNo));
+        for (int obstacleNo = 0; obstacleNo < instance.obstacles.size(); obstacleNo++) {
+            obstacles.add(instance.obstacles.get(obstacleNo));
         }
 
         obstacleTree = buildObstacleTreeRecursive(obstacles);
@@ -213,7 +213,7 @@ class KdTree {
      * @param obstacles A list of obstacles.
      * @return An obstacle k-D tree node.
      */
-    private static ObstacleTreeNode buildObstacleTreeRecursive(List<Obstacle> obstacles) {
+    private ObstacleTreeNode buildObstacleTreeRecursive(List<Obstacle> obstacles) {
         if (obstacles.isEmpty()) {
             return null;
         }
@@ -318,9 +318,9 @@ class KdTree {
                 newObstacle.convex = true;
                 newObstacle.direction = obstacleJ1.direction;
 
-                newObstacle.id = Simulator.instance.obstacles.size();
+                newObstacle.id = instance.obstacles.size();
 
-                Simulator.instance.obstacles.add(newObstacle);
+                instance.obstacles.add(newObstacle);
 
                 obstacleJ1.next = newObstacle;
                 obstacleJ2.previous = newObstacle;
@@ -343,7 +343,7 @@ class KdTree {
     }
 
 
-    private static double sqr(double d) {
+    private double sqr(double d) {
         return d * d;
     }
 
@@ -396,7 +396,7 @@ class KdTree {
      * @param rangeSq The squared range around the agent.
      * @param node    The current obstacle k-D node.
      */
-    private static void queryObstacleTreeRecursive(Agent agent, double rangeSq, ObstacleTreeNode node) {
+    private  void queryObstacleTreeRecursive(Agent agent, double rangeSq, ObstacleTreeNode node) {
         if (node != null) {
             final Obstacle obstacle1 = node.obstacle;
             final Obstacle obstacle2 = obstacle1.next;
@@ -431,7 +431,7 @@ class KdTree {
      * @return True if q1 and q2 are mutually visible within the radius; false
      * otherwise.
      */
-    private static boolean queryVisibilityRecursive(Vector2D q1, Vector2D q2, double radius, ObstacleTreeNode node) {
+    private  boolean queryVisibilityRecursive(Vector2D q1, Vector2D q2, double radius, ObstacleTreeNode node) {
         if (node == null) {
             return true;
         }

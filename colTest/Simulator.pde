@@ -41,7 +41,7 @@ import java.util.List;
  * Defines the simulation.
  */
 public class Simulator {
-    public static final Simulator instance = new Simulator();
+    
 
     final List<Agent> agents = new ArrayList<Agent>();
     final List<Obstacle> obstacles = new ArrayList<Obstacle>();
@@ -192,7 +192,10 @@ public class Simulator {
         }
 
 
-        agents.forEach(Agent::update);
+        //agents.forEach(Agent::update);
+        for (Agent agent : agents) {
+            agent.update();
+        }
 
         globalTime += timeStep;
 
@@ -634,4 +637,4 @@ public class Simulator {
      */
     private Simulator() {
     }
-
+}

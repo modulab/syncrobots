@@ -52,26 +52,26 @@ class Blocks {
 
     private void setupScenario() {
         // Specify the global time step of the simulation.
-        Simulator.instance.setTimeStep(0.25);
+        instance.setTimeStep(0.55);
 
         // Specify the default parameters for agents that are subsequently
         // added.
-        Simulator.instance.setAgentDefaults(15.0, 10, 5.0, 5.0, 2.0, 2.0, Vector2D.ZERO);
+        instance.setAgentDefaults(15.0, 10, 5.0, 5.0, 2.0, 2.0, Vector2D.ZERO);
 
         // Add agents, specifying their start position, and store their goals on
         // the opposite side of the environment.
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Simulator.instance.addAgent(new Vector2D(55.0 + i * 10.0, 55.0 + j * 10.0));
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                instance.addAgent(new Vector2D(55.0 + i * 10.0, 55.0 + j * 10.0));
                 goals.add(new Vector2D(-75.0, -75.0));
 
-                Simulator.instance.addAgent(new Vector2D(-55.0 - i * 10.0, 55.0 + j * 10.0));
+                instance.addAgent(new Vector2D(-55.0 - i * 10.0, 55.0 + j * 10.0));
                 goals.add(new Vector2D(75.0, -75.0));
 
-                Simulator.instance.addAgent(new Vector2D(55.0 + i * 10.0, -55.0 - j * 10.0));
+                instance.addAgent(new Vector2D(55.0 + i * 10.0, -55.0 - j * 10.0));
                 goals.add(new Vector2D(-75.0, 75.0));
 
-                Simulator.instance.addAgent(new Vector2D(-55.0 - i * 10.0, -55.0 - j * 10.0));
+                instance.addAgent(new Vector2D(-55.0 - i * 10.0, -55.0 - j * 10.0));
                 goals.add(new Vector2D(75.0, 75.0));
             }
         }
@@ -83,71 +83,84 @@ class Blocks {
         obstacle1.add(new Vector2D(-40.0, 40.0));
         obstacle1.add(new Vector2D(-40.0, 10.0));
         obstacle1.add(new Vector2D(-10.0, 10.0));
-        Simulator.instance.addObstacle(obstacle1);
+        instance.addObstacle(obstacle1);
 
         final List<Vector2D> obstacle2 = new ArrayList<Vector2D>();
         obstacle2.add(new Vector2D(10.0, 40.0));
         obstacle2.add(new Vector2D(10.0, 10.0));
         obstacle2.add(new Vector2D(40.0, 10.0));
         obstacle2.add(new Vector2D(40.0, 40.0));
-        Simulator.instance.addObstacle(obstacle2);
+        instance.addObstacle(obstacle2);
 
         final List<Vector2D> obstacle3 = new ArrayList<Vector2D>();
         obstacle3.add(new Vector2D(10.0, -40.0));
         obstacle3.add(new Vector2D(40.0, -40.0));
         obstacle3.add(new Vector2D(40.0, -10.0));
         obstacle3.add(new Vector2D(10.0, -10.0));
-        Simulator.instance.addObstacle(obstacle3);
+        instance.addObstacle(obstacle3);
 
         final List<Vector2D> obstacle4 = new ArrayList<Vector2D>();
         obstacle4.add(new Vector2D(-10.0, -40.0));
         obstacle4.add(new Vector2D(-10.0, -10.0));
         obstacle4.add(new Vector2D(-40.0, -10.0));
         obstacle4.add(new Vector2D(-40.0, -40.0));
-        Simulator.instance.addObstacle(obstacle4);
+        instance.addObstacle(obstacle4);
 
         // Process the obstacles so that they are accounted for in the
         // simulation.
-        Simulator.instance.processObstacles();
+        //instance.processObstacles();
     }
 
     private void updateVisualization() {
         // Output the current global time.
-        System.out.print(Simulator.instance.getGlobalTime());
+        //System.out.print(Simulator.instance.getGlobalTime());
 
         // Output the current position of all the agents.
-        for (int agentNo = 0; agentNo < Simulator.instance.getNumAgents(); agentNo++) {
-            System.out.print(" " + Simulator.instance.getAgentPosition(agentNo));
+        for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
+           // System.out.print(" " + instance.getAgentPosition(agentNo));
+            fill(0);
+            beginShape();
+vertex(-10.0*4+400, 40.0*4+400);
+vertex(-40*4+400,40*4+400);
+vertex(-40*4+400,10*4+400);
+vertex(-10*4+400,10*4+400);
+// etc;
+endShape();
+            ellipse((float)instance.getAgentPosition(agentNo).getX()*4+400, (float)instance.getAgentPosition(agentNo).getY()*4+400,4.0,4.0);
+            
         }
 
-        System.out.println();
+        //System.out.println();
     }
 
     private void setPreferredVelocities() {
         // Set the preferred velocity to be a vector of unit magnitude (speed)
         // in the direction of the goal.
-        for (int agentNo = 0; agentNo < Simulator.instance.getNumAgents(); agentNo++) {
-            Vector2D goalVector = goals.get(agentNo).subtract(Simulator.instance.getAgentPosition(agentNo));
+        for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
+            Vector2D goalVector = goals.get(agentNo).subtract(instance.getAgentPosition(agentNo));
             final double lengthSq = goalVector.getNormSq();
 
             if (lengthSq > 1.0) {
                 goalVector = goalVector.scalarMultiply(1.0 / FastMath.sqrt(lengthSq));
             }
 
-            Simulator.instance.setAgentPreferredVelocity(agentNo, goalVector);
+            instance.setAgentPreferredVelocity(agentNo, goalVector);
 
             // Perturb a little to avoid deadlocks due to perfect symmetry.
-            final double angle = random.nextDouble() * 2.0 * FastMath.PI;
-            final double distance = random.nextDouble() * 0.0001;
+            //final double angle = random.nextDouble() * 2.0 * FastMath.PI;
+            //final double distance = random.nextDouble() * 0.0001;
+            final double angle = 0;
+            final double distance = 0;
 
-            Simulator.instance.setAgentPreferredVelocity(agentNo, Simulator.instance.getAgentPreferredVelocity(agentNo).add(new Vector2D(FastMath.cos(angle), FastMath.sin(angle)).scalarMultiply(distance)));
+
+            instance.setAgentPreferredVelocity(agentNo, instance.getAgentPreferredVelocity(agentNo).add(new Vector2D(FastMath.cos(angle), FastMath.sin(angle)).scalarMultiply(distance)));
         }
     }
 
     private boolean reachedGoal() {
         // Check if all agents have reached their goals.
-        for (int agentNo = 0; agentNo < Simulator.instance.getNumAgents(); agentNo++) {
-            if (Simulator.instance.getAgentPosition(agentNo).distanceSq(goals.get(agentNo)) > 400.0) {
+        for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
+            if (instance.getAgentPosition(agentNo).distanceSq(goals.get(agentNo)) > 400.0) {
                 return false;
             }
         }
@@ -170,5 +183,5 @@ class Blocks {
         while (!blocks.reachedGoal());
     }
     
-  /*  
+  */
 }

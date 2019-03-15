@@ -65,12 +65,12 @@ class Agent {
     void computeNeighbors() {
         obstacleNeighbors.clear();
         final double range = timeHorizonObstacles * maxSpeed + radius;
-        Simulator.instance.kdTree.computeObstacleNeighbors(this, range * range);
+        instance.kdTree.computeObstacleNeighbors(this, range * range);
 
         agentNeighbors.clear();
 
         if (maxNeighbors > 0) {
-            Simulator.instance.kdTree.computeAgentNeighbors(this, neighborDistance * neighborDistance);
+            instance.kdTree.computeAgentNeighbors(this, neighborDistance * neighborDistance);
         }
     }
 
@@ -333,7 +333,7 @@ class Agent {
                 }
             } else {
                 // Collision. Project on cut-off circle of time timeStep.
-                final double invTimeStep = 1.0 / Simulator.instance.timeStep;
+                final double invTimeStep = 1.0 / instance.timeStep;
 
                 // Vector from cutoff center to relative velocity.
                 final Vector2D w = relativeVelocity.subtract(invTimeStep, relativePosition);
@@ -431,7 +431,7 @@ class Agent {
      */
     void update() {
         velocity = newVelocity;
-        position = position.add(Simulator.instance.timeStep, velocity);
+        position = position.add(instance.timeStep, velocity);
     }
 
     /**

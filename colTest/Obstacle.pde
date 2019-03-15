@@ -45,4 +45,3 @@ class Obstacle {
     int id = 0;
     boolean convex = false;
 }
-
