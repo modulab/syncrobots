@@ -52,14 +52,29 @@ class Blocks {
 
     private void setupScenario() {
         // Specify the global time step of the simulation.
-        instance.setTimeStep(0.55);
+        instance.setTimeStep(1.55);
 
         // Specify the default parameters for agents that are subsequently
         // added.
-        instance.setAgentDefaults(15.0, 10, 5.0, 5.0, 2.0, 2.0, Vector2D.ZERO);
+        instance.setAgentDefaults(25.0, 20, 5.0, 5.0, 10.0, 2.0, Vector2D.ZERO);
 
         // Add agents, specifying their start position, and store their goals on
         // the opposite side of the environment.
+        
+        for (int i = 0; i < 100; i=i+2) {
+            for (int j = 0; j < 24; j=j+2) {
+              
+              if (img[j*100+i] == 1) {
+                instance.addAgent(new Vector2D(random(800), random(800)));
+                goals.add(new Vector2D(i*10, 200+j*10));
+
+              }
+              
+            }
+        }
+        
+        /*
+        
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 instance.addAgent(new Vector2D(55.0 + i * 10.0, 55.0 + j * 10.0));
@@ -75,9 +90,12 @@ class Blocks {
                 goals.add(new Vector2D(75.0, 75.0));
             }
         }
+        
+        */
 
         // Add (polygonal) obstacles, specifying their vertices in
         // counterclockwise order.
+        /*
         final List<Vector2D> obstacle1 = new ArrayList<Vector2D>();
         obstacle1.add(new Vector2D(-10.0, 40.0));
         obstacle1.add(new Vector2D(-40.0, 40.0));
@@ -105,7 +123,7 @@ class Blocks {
         obstacle4.add(new Vector2D(-40.0, -10.0));
         obstacle4.add(new Vector2D(-40.0, -40.0));
         instance.addObstacle(obstacle4);
-
+*/
         // Process the obstacles so that they are accounted for in the
         // simulation.
         //instance.processObstacles();
@@ -118,6 +136,8 @@ class Blocks {
         // Output the current position of all the agents.
         for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
            // System.out.print(" " + instance.getAgentPosition(agentNo));
+           fill(0);
+           /*
             fill(0);
             beginShape();
 vertex(-10.0*4+400, 40.0*4+400);
@@ -126,7 +146,8 @@ vertex(-40*4+400,10*4+400);
 vertex(-10*4+400,10*4+400);
 // etc;
 endShape();
-            ellipse((float)instance.getAgentPosition(agentNo).getX()*4+400, (float)instance.getAgentPosition(agentNo).getY()*4+400,4.0,4.0);
+*/
+            ellipse((float)instance.getAgentPosition(agentNo).getX(), (float)instance.getAgentPosition(agentNo).getY(),4.0,4.0);
             
         }
 
@@ -147,10 +168,10 @@ endShape();
             instance.setAgentPreferredVelocity(agentNo, goalVector);
 
             // Perturb a little to avoid deadlocks due to perfect symmetry.
-            //final double angle = random.nextDouble() * 2.0 * FastMath.PI;
-            //final double distance = random.nextDouble() * 0.0001;
-            final double angle = 0;
-            final double distance = 0;
+            final double angle = random.nextDouble() * 2.0 * FastMath.PI;
+            final double distance = random.nextDouble() * 0.0001;
+            //final double angle = 0;
+            //final double distance = 0;
 
 
             instance.setAgentPreferredVelocity(agentNo, instance.getAgentPreferredVelocity(agentNo).add(new Vector2D(FastMath.cos(angle), FastMath.sin(angle)).scalarMultiply(distance)));
