@@ -4,19 +4,20 @@ import java.net.*;
 
 boolean esc = true;
 
-int robotNR = 2;
+int robotNR = 3;
 int[] x = new int[robotNR];
 int[] y = new int[robotNR];
 int[] dir = new int[robotNR];
 
-
+int aproape = 50;
+int demultiplicator = 1;
 
 String[] data =new String[robotNR];
 
 int[][] puncte= {{-102,753}, {-445,913}, {30,30}, {40,30}, {30,20}};
 
 String[] ips = {
-                  "192.168.1.18" , "192.168.1.16" 
+                  "192.168.1.16" , "192.168.1.18" , "192.168.1.54" 
                 };
 
 Client[] cPort23 = new Client[robotNR];
@@ -94,9 +95,7 @@ void draw() {
     text("diff_: " + ((360- (float)(spre-dir[i]))%360), 10, 130); 
 */
     rect(puncte[i][0]/3+700,puncte[i][1]/4+300,20,40);
-    
     translate(x[i]/3+700,y[i]/4+300);
-    
     
     text("robot: " + (float)((dir[i])), 10, 30);
     text("spre_: " + (spre), 10, 50); 
@@ -114,7 +113,19 @@ void draw() {
     if (!esc) {
       
       float xx = ((360- (float)(spre-dir[i]))%360);
-      int motor = 200 + 800*(abs(180-(int)xx))/180;
+      
+      if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 150) {
+        demultiplicator = 2;
+      } else
+      {
+        demultiplicator = 1;
+      }
+      
+      
+      int motor = 200 + 800*(abs(180-(int)xx))/180/demultiplicator;
+      
+      
+      
       if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 50) {
            cPort24[i].write("iw 0 15 0\r\n");
            cPort24[i].write("iw 0 12 0\r\n");     
