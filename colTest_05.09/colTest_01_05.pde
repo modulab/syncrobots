@@ -29,8 +29,6 @@ String[] data =new String[robotNR];
 
 int[][] puncte= {{-102,753}, {-445,913}, {30,30}, {40,30}, {30,20}};
 
-
-
 public Client[] cPort23 = new Client[robotNR];
 public Client[] cPort24 = new Client[robotNR];
 
@@ -43,9 +41,9 @@ int xg[] = {200,180,120,100};
 int yg[] = {200,180,120,100};
 
 
- final Simulator instance = new Simulator();
+final Simulator instance = new Simulator();
  
- void settings() {
+void settings() {
   size(1000, 800, P2D);
 }
 
@@ -89,7 +87,7 @@ void mouseWheel(MouseEvent event) {
 
 void draw() {
   background(255);
-  textSize(12);
+  textSize(10);
   noFill();
   //if (!blocks.reachedGoal()) {
   blocks.updateVisualization();
@@ -106,13 +104,13 @@ void draw() {
             4.0);
 
     resetMatrix();
-    //float deltaX = (x[i] - puncte[i][0]);
-    //float deltaY = (y[i] - puncte[i][1]);
+
 
     float deltaX = ((float)x[i] - (float)instance.getAgentPosition(i).getX());
     float deltaY = ((float)y[i] - (float)instance.getAgentPosition(i).getY());
     
-    instance.setAgentPosition(i,new Vector2D(x[i], y[i]));
+    instance.setAgentPosition(i, new Vector2D(x[i], y[i]));
+    instance.setAgentRadius(i, razaDeOcolit);
     float spre = 0;
     
   if (deltaX<0 && deltaY<0) {
@@ -136,8 +134,14 @@ void draw() {
          30,
          30);
    
-    
+
+
     translate(x[i]/config.getZoom() + config.getTranslateX(),y[i]/config.getZoom() + config.getTranslateY());
+
+    // (0, 0)
+    line(-5,0,5,0);
+    line(0,-5,0,5);
+
     
     /*    
     text("robot: " + (float)((dir[i])), 10, 30);
@@ -147,6 +151,7 @@ void draw() {
     text("y_: " + (y[i]), 10, 110);   
     text("diff_: " + ((360 - (float)(spre-dir[i]))%360), 10, 130); 
     */
+    text((x[i])+ "," + y[i], -10, 20); 
     rotate(radians(dir[i]+180));
 
     if (!esc) {
@@ -167,26 +172,19 @@ void draw() {
       if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 50) {
            cPort24[i].write("iw 0 15 0\r\n");
            cPort24[i].write("iw 0 12 0\r\n");     
-      } else
-     //if (spre - (float)(dir/6+180)<0) {
-       
-       if (((360- (float)(spre-dir[i]))%360) < 180) {
-       //cPort24[i].write("iw 0 15 400\r\n");
+      } else if (((360- (float)(spre-dir[i]))%360) < 180) {
        cPort24[i].write("iw 0 15 " + motor + "\r\n");
        cPort24[i].write("iw 0 12 1000\r\n");
      } else {
        cPort24[i].write("iw 0 15 1000\r\n");
        cPort24[i].write("iw 0 12 " + motor + "\r\n");
-       //cPort24[i].write("iw 0 12 400\r\n");
      }
    }
-
   
   line(0,-10,0,10);
   line(0,10,-5,0);
   line(0,10,5,0);
   ellipse(0,0,razaDeOcolit,razaDeOcolit);
-
    
   }
   
