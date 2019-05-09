@@ -1,7 +1,7 @@
 class Config {
   
-  int translateX = 700;
-  int translateY = 300;
+  int translateX = 480;
+  int translateY = 180;
   float zoom = 3;
 
   public String[] ips = {
@@ -42,7 +42,4 @@ class Config {
   }
 
 
-
-
-  
 }
