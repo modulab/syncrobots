@@ -57,6 +57,26 @@ class ControlFrame extends PApplet {
        .setSize(200, 30)
        ;
 
+
+   cp5.addButton("Rotire in loc clockwise")
+     .setValue(0)
+     .setPosition(20,400)
+     .setSize(120,19)
+     ;      
+
+   cp5.addButton("Rotire in loc anti-wise")
+     .setValue(0)
+     .setPosition(150,400)
+     .setSize(120,19)
+     ;      
+
+   cp5.addButton("Stop Rotire!")
+     .setValue(0)
+     .setPosition(290,400)
+     .setSize(120,19)
+     ;      
+
+
    cp5.addButton("Start")
      .setValue(0)
      .setPosition(50,500)
