@@ -21,7 +21,6 @@ int robotNR = config.ips.length;
 
 int[] dir = new int[robotNR];
 
-int aproape = 50;
 int demultiplicator = 1;
 int razaDeOcolit = 50;
 int rotireInLocStop = 0;
@@ -58,7 +57,6 @@ void setup() {
   blocks.setupScenario();
   //blocks.setPreferredVelocities();
   
-  
   for (int i = 0; i < robotNR; i++)
   {
     x[i] = y[i] = dir[i] = 0;
@@ -71,62 +69,20 @@ void setup() {
 }
 
 
-
-void mouseDragged() 
-{
-  config.setTranslateX(config.getTranslateX()+mouseX-pmouseX);
-  config.setTranslateY(config.getTranslateY()+mouseY-pmouseY);  
-  cf.UpdateXYZ(config.getTranslateX(),config.getTranslateY(),config.getZoom());
-}
-
-
-void mouseWheel(MouseEvent event) {
-  float e = event.getCount();
-  config.setZoom(config.getZoom() + e);
-  cf.UpdateXYZ(config.getTranslateX(),config.getTranslateY(),config.getZoom());
-}
-
-
-
 void draw() {
   background(255);
   textSize(10);
   noFill();
-  //if (!blocks.reachedGoal()) {
+
   blocks.updateVisualization();
   blocks.setPreferredVelocities();
   instance.doStep();
-  //}  
-   noFill();
-   
-  
-  if (rotireInLocClockwise == 1) {
-     rotireInLocClockwise = 0;
-     rotitInLoc(2,1);
-  }
-   
-  if (rotireInLocAntiClockwise == 1) {
-     rotireInLocAntiClockwise = 0;
-     rotitInLoc(2,2);
-  }
-
-  if (rotireInLocStop == 1) {
-     rotireInLocStop = 0;
-     rotitInLoc(2,3);
-  }
-
+  draw0x0();   
+  processRotitInLoc();
    
   for (int i=0; i<robotNR; i++)
   {
     
-    ellipse((float)instance.getAgentPosition(i).getX()/config.getZoom()+config.getTranslateX(),
-            (float)instance.getAgentPosition(i).getY()/config.getZoom()+config.getTranslateY(),
-            4.0,
-            4.0);
-
-    resetMatrix();
-
-
     float deltaX = ((float)x[i] - (float)instance.getAgentPosition(i).getX());
     float deltaY = ((float)y[i] - (float)instance.getAgentPosition(i).getY());
     
@@ -145,23 +101,11 @@ void draw() {
 
     spre = (360-spre) % 360;
 
-    ellipse((float)instance.getAgentPosition(i).getX()/config.getZoom()+config.getTranslateX(),
-            (float)instance.getAgentPosition(i).getY()/config.getZoom()+config.getTranslateY(),
-            4.0,
-            4.0);
- 
     rect(puncte[i][0]/config.getZoom() + config.getTranslateX(),
          puncte[i][1]/config.getZoom() + config.getTranslateY(),
          30,
          30);
    
-
-    translate(x[i]/config.getZoom() + config.getTranslateX(),y[i]/config.getZoom() + config.getTranslateY());
-
-    // (0, 0)
-    line(-5,0,5,0);
-    line(0,-5,0,5);
-
     
     /*    
     text("robot: " + (float)((dir[i])), 10, 30);
@@ -171,24 +115,19 @@ void draw() {
     text("y_: " + (y[i]), 10, 110);   
     text("diff_: " + ((360 - (float)(spre-dir[i]))%360), 10, 130); 
     */
-    text((x[i])+ "," + y[i], -10, 20); 
-    rotate(radians(dir[i]+180));
 
     if (!esc) {
       
-      float xx = ((360- (float)(spre-dir[i]))%360);
+      float xx = ((360 - (float)(spre - dir[i])) % 360);
       
       if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 150) {
         demultiplicator = 2;
-      } else
-      {
+      } else {
         demultiplicator = 1;
       }
       
-      
-      int motor = 200 + 800*(abs(180-(int)xx))/180/demultiplicator;
-      
-            
+      int motor = 200 + 800 * (abs(180 - (int)xx)) / 180 / demultiplicator;
+                  
       if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 50) {
            cPort24[i].write("iw 0 15 0\r\n");
            cPort24[i].write("iw 0 12 0\r\n");     
@@ -201,15 +140,34 @@ void draw() {
      }
    }
   
-  line(0,-10,0,10);
-  line(0,10,-5,0);
-  line(0,10,5,0);
-  ellipse(0,0,razaDeOcolit,razaDeOcolit);
+  drawRobot(i);
    
   }
   
 }
 
+void draw0x0(){
+         // (0, 0)
+    translate(config.getTranslateX(),
+              config.getTranslateY()
+              );       
+    line(-5,0,5,0);
+    line(0,-5,0,5);
+    resetMatrix();
+}
+
+void drawRobot(int i) {
+  translate(x[i]/config.getZoom() + config.getTranslateX(),
+            y[i]/config.getZoom() + config.getTranslateY()
+            );
+  text((x[i])+ "," + y[i], -10, 20); 
+  rotate(radians(dir[i]+180));
+  line(0,-10,0,10);
+  line(0,10,-5,0);
+  line(0,10,5,0);
+  ellipse(0,0,razaDeOcolit,razaDeOcolit);
+  resetMatrix();
+}
 
 void rotitInLoc(int indexRobot, int sens) {
   if (sens == 1) {
@@ -249,7 +207,6 @@ void clientEvent(Client someClient) {
   {
     if (someClient == cPort23[i]) {
       indexRobot = i;
-      //break;
     }
   }
   
@@ -310,6 +267,25 @@ void stop() {
 } 
 
 
+void processRotitInLoc() {
+    if (rotireInLocClockwise == 1) {
+     rotireInLocClockwise = 0;
+     rotitInLoc(2,1);
+  }
+   
+  if (rotireInLocAntiClockwise == 1) {
+     rotireInLocAntiClockwise = 0;
+     rotitInLoc(2,2);
+  }
+
+  if (rotireInLocStop == 1) {
+     rotireInLocStop = 0;
+     rotitInLoc(2,3);
+  }
+
+}
+
+
 void keyPressed() {
   
   if (key=='q' || key == 'Q') {
@@ -341,16 +317,6 @@ void keyPressed() {
         blocks.updateGoal(i,puncte[i][0], puncte[i][1]);
       }
   }
-
-  if (key=='p' || key == 'P') {
-      rotitInLoc(2,1);
-  }
-
-
-  if (key=='o' || key == 'O') {
-      rotitInLoc(2,2);
-  }
-
    
 }
 
@@ -359,25 +325,16 @@ void disconnectEvent(Client someClient) {
 }
 
 
-class ClientThread extends Thread {
-   int clientIndex;
-   PApplet app;
-   public ClientThread(int index, PApplet app){
-      this.clientIndex = index;
-      this.app = app;
-   }
-  
-  public void run() {
+void mouseDragged()
+{
+  config.setTranslateX(config.getTranslateX() + mouseX - pmouseX);
+  config.setTranslateY(config.getTranslateY() + mouseY - pmouseY);  
+  cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
+}
 
-     cPort23[clientIndex] = new Client(app, ips[clientIndex], 23);
-     cPort24[clientIndex] = new Client(app, ips[clientIndex], 24);
-     if (cPort23[clientIndex].active() == false || cPort23[clientIndex].active() == false) {
-       cf.UpdateButton(clientIndex, color(255,0,0));
-       println("UPS eroare (port23) index: " + clientIndex);       
-     } else {
-       cf.UpdateButton(clientIndex, color(0,255,0));
-       println("Init robot index: " + clientIndex);
-     }
-     
-  }
+
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  config.setZoom(config.getZoom() + e);
+  cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
 }
