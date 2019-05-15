@@ -142,7 +142,6 @@ class Blocks {
         // Output the current position of all the agents.
         for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
            // System.out.print(" " + instance.getAgentPosition(agentNo));
-           fill(0);
            /*
             fill(0);
             beginShape();
