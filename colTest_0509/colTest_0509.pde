@@ -29,7 +29,16 @@ int rotireInLocAntiClockwise = 0;
 
 String[] data =new String[robotNR];
 
-int[][] puncte= {{-102,753}, {-445,913}, {30,30}, {40,30}, {30,20}};
+
+
+int[][][] puncte = {
+      {{-499,594}},
+      {{-708,973}},
+      {{-147,1286}},
+      {{117,832}}
+    };
+
+int stage = 0;
 
 public Client[] cPort23 = new Client[robotNR];
 public Client[] cPort24 = new Client[robotNR];
@@ -70,6 +79,7 @@ void setup() {
 
 
 void draw() {
+  println(stage);
   background(255);
   textSize(10);
   noFill();
@@ -101,8 +111,8 @@ void draw() {
 
     spre = (360-spre) % 360;
 
-    rect(puncte[i][0]/config.getZoom() + config.getTranslateX(),
-         puncte[i][1]/config.getZoom() + config.getTranslateY(),
+    rect(puncte[stage][i][0]/config.getZoom() + config.getTranslateX(),
+         puncte[stage][i][1]/config.getZoom() + config.getTranslateY(),
          30,
          30);
    
@@ -120,7 +130,7 @@ void draw() {
       
       float xx = ((360 - (float)(spre - dir[i])) % 360);
       
-      if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 150) {
+      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 150) {
         demultiplicator = 2;
       } else {
         demultiplicator = 1;
@@ -128,15 +138,25 @@ void draw() {
       
       int motor = 200 + 800 * (abs(180 - (int)xx)) / 180 / demultiplicator;
                   
-      if (dist(x[i],y[i],puncte[i][0],puncte[i][1]) < 50) {
+      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 50) {
+        if (cPort24[i].active()) {
            cPort24[i].write("iw 0 15 0\r\n");
-           cPort24[i].write("iw 0 12 0\r\n");     
+           cPort24[i].write("iw 0 12 0\r\n");
+           
+        }
+           if (stage<3) stage++;
+           else stage = 0;
+           updateGoal();
       } else if (((360- (float)(spre-dir[i]))%360) < 180) {
+        if (cPort24[i].active()) {
        cPort24[i].write("iw 0 15 " + motor + "\r\n");
        cPort24[i].write("iw 0 12 1000\r\n");
+        }
      } else {
+       if (cPort24[i].active()) {
        cPort24[i].write("iw 0 15 1000\r\n");
        cPort24[i].write("iw 0 12 " + motor + "\r\n");
+       }
      }
    }
   
@@ -157,10 +177,14 @@ void draw0x0(){
 }
 
 void drawRobot(int i) {
+  
   translate(x[i]/config.getZoom() + config.getTranslateX(),
             y[i]/config.getZoom() + config.getTranslateY()
             );
-  text((x[i])+ "," + y[i], -10, 20); 
+  fill(0);
+  text((x[i])+ "," + y[i], -10, 20);
+  noFill();
+  
   rotate(radians(dir[i]+180));
   line(0,-10,0,10);
   line(0,10,-5,0);
@@ -170,6 +194,10 @@ void drawRobot(int i) {
 }
 
 void rotitInLoc(int indexRobot, int sens) {
+  println("xxxxxx");
+  if (!cPort24[indexRobot].active()) {
+    return;
+  }
   if (sens == 1) {
     cPort24[indexRobot].write("iw 0 15 0\r\n");
     cPort24[indexRobot].write("iw 0 14 0\r\n");
@@ -258,6 +286,14 @@ void clientEvent(Client someClient) {
 }
 
 
+void updateGoal() {
+    for (int i = 0;i < robotNR;i++)
+      {
+        blocks.updateGoal(i,puncte[stage][i][0], puncte[stage][i][1]);
+      }
+}
+
+
 void stop() {
   for (int i = 0;i < robotNR;i++)
   {
@@ -293,8 +329,10 @@ void keyPressed() {
     esc = !esc;
     for (int i=0;i<robotNR;i++)
     {
-      cPort24[i].write("iw 0 15 0\r\n");
-      cPort24[i].write("iw 0 12 0\r\n");
+      if (cPort24[i].active()) {
+        cPort24[i].write("iw 0 15 0\r\n");
+        cPort24[i].write("iw 0 12 0\r\n");
+      }
     }
   }
   
@@ -312,11 +350,26 @@ void keyPressed() {
       println("RANDOM!!");
       for (int i=0;i<robotNR;i++)
       {
-        puncte[i][0]=(int)random(1000)-500;
-        puncte[i][1]=200 + (int)random(600);        
-        blocks.updateGoal(i,puncte[i][0], puncte[i][1]);
+        puncte[0][i][0]=(int)random(1000)-500;
+        puncte[0][i][1]=200 + (int)random(600);        
+        blocks.updateGoal(i,puncte[0][i][0], puncte[0][i][1]);
       }
   }
+   
+    if (key=='p' || key == 'P') {
+      print("{");
+      for (int i=0;i<robotNR;i++)
+      {
+        print("{" + x[i] + "," + y[i] + "},");
+      }
+      println("},");
+  }
+   
+       if (key=='n' || key == 'N') {
+         if (stage<3) { stage++; }
+         else {stage = 0;}
+  }
+   
    
 }
 

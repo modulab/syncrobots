@@ -5,11 +5,9 @@ class Config {
   float zoom = 3;
 
   public String[] ips = {
-                   "192.168.1.58",
-                   
-                   "192.168.1.54",
-                   "192.168.1.18"
-                  };
+      //"192.168.1.18"
+      "192.168.1.145"
+  };
 
   void setZoom(float z) {
     zoom = z;

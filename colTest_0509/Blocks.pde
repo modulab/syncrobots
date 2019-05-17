@@ -76,7 +76,7 @@ class Blocks {
         
         for (int i = 0; i < robotNR; i++) {
             instance.addAgent(new Vector2D(x[i], y[i]));
-            goals.add(new Vector2D(puncte[i][0], puncte[i][1]));          
+            goals.add(new Vector2D(puncte[stage][i][0], puncte[stage][i][1]));          
         }
         
         /*
