@@ -16,6 +16,9 @@ class ClientThread extends Thread {
      } else {
        cf.UpdateButton(clientIndex, color(0,255,0));
        println("Init robot index: " + clientIndex);
+       cPort24[clientIndex].write("iw 0 0 0\r\n");
+       delay(15);
+       cPort24[clientIndex].write("iw 0 0 1\r\n");
      }
      
   }

@@ -15,41 +15,49 @@ RVOMath RVOMath = new RVOMath();
 
 boolean esc = true;
 Config config = new Config();
+Leds leds = new Leds();
 
 String[] ips = config.ips;
 int robotNR = config.ips.length;
 
 int[] dir = new int[robotNR];
 
-int demultiplicator = 1;
-int razaDeOcolit = 50;
+float demultiplicator = 1;
+float demultiplicatorMotor = 1;
+
+int razaDeOcolit = 120;
 int rotireInLocStop = 0;
 int rotireInLocClockwise = 0;
 int rotireInLocAntiClockwise = 0;
 
+int[] lastClientMotorCommand = {0,0,0,0,0};
+
+int motorSpeed = 1000;
+
 String[] data =new String[robotNR];
 
 
-
+//[stage][x][y]
 int[][][] puncte = {
-      {{-499,594}},
-      {{-708,973}},
-      {{-147,1286}},
-      {{117,832}}
+    //{{458,1526},{400,1437},{272,1272},{229,1163},{343,1349}},
+    {{274,2162},{236,1907},{189,1626},{119,1073},{160,1364}},
+    {{517,1675},{-108,2081},{0,1549},{121,1116},{-520,1374}},
+    {{271,1802},{-31,1906},{-119,1622},{-76,1226},{583,1629}}
     };
+
+boolean[] stageComplete = {false,false,false,false,false};
+
+String[] culori = {"0xff0000", "0xffff00","0xff00ff","0x0000ff"};
 
 int stage = 0;
 
 public Client[] cPort23 = new Client[robotNR];
 public Client[] cPort24 = new Client[robotNR];
 
-
-//int img[]={0x00,0x00,0x00,0x00,0x00,0x00.....etc};
-
-int x[] = {100,120,180,200};
-int y[] = {100,120,180,200};
-int xg[] = {200,180,120,100};
-int yg[] = {200,180,120,100};
+int x[] = {100,120,180,200,0};
+int y[] = {100,120,180,200,0};
+int xg[] = {200,180,120,100,0};
+int yg[] = {200,180,120,100,0};
 
 
 final Simulator instance = new Simulator();
@@ -79,25 +87,30 @@ void setup() {
 
 
 void draw() {
-  println(stage);
+  //println(stage);
   background(255);
   textSize(10);
   noFill();
 
   blocks.updateVisualization();
-  blocks.setPreferredVelocities();
+  blocks.setPreferredVelocities();  
   instance.doStep();
+
   draw0x0();   
   processRotitInLoc();
    
   for (int i=0; i<robotNR; i++)
   {
     
+       //predictie
+       rect((float)instance.getAgentPosition(i).getX() / config.getZoom() + config.getTranslateX() - 2,
+         (float)instance.getAgentPosition(i).getY() / config.getZoom() + config.getTranslateY() - 2,
+         4,
+         4);
+   //end predictie
+    
     float deltaX = ((float)x[i] - (float)instance.getAgentPosition(i).getX());
     float deltaY = ((float)y[i] - (float)instance.getAgentPosition(i).getY());
-    
-    instance.setAgentPosition(i, new Vector2D(x[i], y[i]));
-    instance.setAgentRadius(i, razaDeOcolit);
     float spre = 0;
     
   if (deltaX<0 && deltaY<0) {
@@ -111,63 +124,104 @@ void draw() {
 
     spre = (360-spre) % 360;
 
-    rect(puncte[stage][i][0]/config.getZoom() + config.getTranslateX(),
-         puncte[stage][i][1]/config.getZoom() + config.getTranslateY(),
-         30,
-         30);
+    rect(puncte[stage][i][0] / config.getZoom() + config.getTranslateX() - 10,
+         puncte[stage][i][1] / config.getZoom() + config.getTranslateY() - 10,
+         20,
+         20);
    
-    
-    /*    
-    text("robot: " + (float)((dir[i])), 10, 30);
-    text("spre_: " + (spre), 10, 50); 
-    text("dist_: " + dist(x[i],y[i],puncte[i][0],puncte[i][1]), 10, 70); 
-    text("x_: " + (x[i]), 10, 90); 
-    text("y_: " + (y[i]), 10, 110);   
-    text("diff_: " + ((360 - (float)(spre-dir[i]))%360), 10, 130); 
-    */
 
+   
     if (!esc) {
       
       float xx = ((360 - (float)(spre - dir[i])) % 360);
       
-      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 150) {
-        demultiplicator = 2;
+      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 200) {
+        demultiplicator = 4;
       } else {
-        demultiplicator = 1;
+        demultiplicator = demultiplicatorMotor;
       }
       
-      int motor = 200 + 800 * (abs(180 - (int)xx)) / 180 / demultiplicator;
-                  
-      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 50) {
+      if (abs(xx) > 90) {
+        demultiplicator *= 4;
+      }
+      
+      
+      //int motor = 200 + (motorSpeed-200) * (int)sqrt(abs(180*180 - (int)(xx * xx))) / 180 / demultiplicator;
+      int motor = 300 + (int)((motorSpeed-300) * (int)abs(180 - (int)xx) / 180 / demultiplicator);
+      if (dist(x[i],y[i],puncte[stage][i][0],puncte[stage][i][1]) < 50 && dist(x[i],y[i],(float)instance.getAgentPosition(i).getX(),(float)instance.getAgentPosition(i).getY())<50) {
         if (cPort24[i].active()) {
-           cPort24[i].write("iw 0 15 0\r\n");
-           cPort24[i].write("iw 0 12 0\r\n");
-           
+          if (lastClientMotorCommand[i] != 0) {
+           cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
+           delay(10);
+           cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+          }
+           lastClientMotorCommand[i] = 0;
         }
-           if (stage<3) stage++;
-           else stage = 0;
+            stageComplete[i] = true;
+           
+           //schimba goalul cu pozitia curenta
+           //puncte[stage][i][0] = x[i];
+           //puncte[stage][i][0] = x[i];
            updateGoal();
+           //end schimba goalul cu pozitia curenta
+           
+           if (isStageComplete()) {
+               if (stage<puncte.length-1) stage++;
+               else stage = 0;
+               delay(2000);
+               updateGoal();
+           }
+           //delay(10);
+           //leds.TurnOnHalf1(cPort24[i], culori[stage]);
+           //leds.TurnOnHalf2(cPort24[i], culori[stage]);
+           //delay(10);
       } else if (((360- (float)(spre-dir[i]))%360) < 180) {
         if (cPort24[i].active()) {
-       cPort24[i].write("iw 0 15 " + motor + "\r\n");
-       cPort24[i].write("iw 0 12 1000\r\n");
+             cPort24[i].write("iw 0 " + config.motorLeftFwd + " " + motor + "\r\n");
+             if (lastClientMotorCommand[i] != 1) {
+               delay(10);
+               cPort24[i].write("iw 0 " + config.motorRightFwd + " " + motorSpeed + "\r\n");
+             }
+           lastClientMotorCommand[i] = 1;
         }
      } else {
        if (cPort24[i].active()) {
-       cPort24[i].write("iw 0 15 1000\r\n");
-       cPort24[i].write("iw 0 12 " + motor + "\r\n");
+          if (lastClientMotorCommand[i] != 2) {
+             cPort24[i].write("iw 0 " + config.motorLeftFwd + " " + motorSpeed + "\r\n");
+             delay(10);
+          }
+             cPort24[i].write("iw 0 " + config.motorRightFwd + " " + motor + "\r\n");
+             lastClientMotorCommand[i] = 2;
        }
      }
    }
-  
+   
+  instance.setAgentPosition(i, new Vector2D(x[i], y[i]));
+  instance.setAgentRadius(i, razaDeOcolit);
+
   drawRobot(i);
    
   }
   
 }
 
+
+boolean isStageComplete() {
+  for (int i=0; i<robotNR; i++) {
+    if (stageComplete[i] == false) return false;
+  }
+  
+  for (int i=1; i < robotNR; i++) {
+    stageComplete[i] = false;
+  }
+  return true;
+}
+
+
+/* 
+** Draws a cross in (0,0)
+*/
 void draw0x0(){
-         // (0, 0)
     translate(config.getTranslateX(),
               config.getTranslateY()
               );       
@@ -176,54 +230,99 @@ void draw0x0(){
     resetMatrix();
 }
 
+
+/* 
+** Main method to draw a robot
+*/
 void drawRobot(int i) {
+
+ stroke(230);
+ line(x[i]/config.getZoom() + config.getTranslateX(),
+     y[i]/config.getZoom() + config.getTranslateY(),
+     puncte[stage][i][0]/config.getZoom() + config.getTranslateX(),
+     puncte[stage][i][1]/config.getZoom() + config.getTranslateY());
+ stroke(0);
+
   
   translate(x[i]/config.getZoom() + config.getTranslateX(),
             y[i]/config.getZoom() + config.getTranslateY()
             );
   fill(0);
   text((x[i])+ "," + y[i], -10, 20);
+  text((ips[i]), -10, 0);
   noFill();
   
   rotate(radians(dir[i]+180));
   line(0,-10,0,10);
   line(0,10,-5,0);
   line(0,10,5,0);
-  ellipse(0,0,razaDeOcolit,razaDeOcolit);
+  ellipse(0,0,razaDeOcolit/config.getZoom(),razaDeOcolit/config.getZoom());
   resetMatrix();
+ 
 }
 
+
+
+/* 
+** Rotates a robot by its center
+*/
 void rotitInLoc(int indexRobot, int sens) {
-  println("xxxxxx");
-  if (!cPort24[indexRobot].active()) {
-    return;
-  }
-  if (sens == 1) {
-    cPort24[indexRobot].write("iw 0 15 0\r\n");
-    cPort24[indexRobot].write("iw 0 14 0\r\n");
-    delay(100);
-    cPort24[indexRobot].write("iw 0 12 1000\r\n");
-    cPort24[indexRobot].write("iw 0 5 1000\r\n");
-  }
-  if (sens == 2)
-  {
-    cPort24[indexRobot].write("iw 0 12 0\r\n");
-    cPort24[indexRobot].write("iw 0 5 0\r\n");
-    delay(100);
-    cPort24[indexRobot].write("iw 0 15 1000\r\n");
-    cPort24[indexRobot].write("iw 0 14 1000\r\n");
-  }
   
-  if (sens == 3)
-  {
-    cPort24[indexRobot].write("iw 0 12 0\r\n");
-    cPort24[indexRobot].write("iw 0 5 0\r\n");
-    delay(100);
-    cPort24[indexRobot].write("iw 0 15 0\r\n");
-    cPort24[indexRobot].write("iw 0 14 0\r\n");
+    if (!cPort24[indexRobot].active()) {
+      return;
+    }
+    if (sens == 1) {
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorRightRev + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorRightFwd + " 700\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftRev + " 700\r\n");
+    }
+    if (sens == 2)
+    {
+      cPort24[indexRobot].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftRev + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftFwd + " 700\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorRightRev + " 700\r\n");
+    }
+    
+    if (sens == 3)
+    {
+      cPort24[indexRobot].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorRightRev + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
+      delay(10);
+      cPort24[indexRobot].write("iw 0 " + config.motorLeftRev + " 0\r\n");
+    }
+
+}
+
+void processRotitInLoc() {
+    if (rotireInLocClockwise == 1) {
+     rotireInLocClockwise = 0;
+     for (int i=0; i< robotNR; i++)
+       rotitInLoc(i,1);
+  }
+   
+  if (rotireInLocAntiClockwise == 1) {
+     rotireInLocAntiClockwise = 0;
+     for (int i=0; i< robotNR; i++)
+       rotitInLoc(i,2);
   }
 
-  
+  if (rotireInLocStop == 1) {
+     rotireInLocStop = 0;
+     for (int i=0; i< robotNR; i++)
+       rotitInLoc(i,3);
+  }
+
 }
 
 
@@ -240,47 +339,48 @@ void clientEvent(Client someClient) {
   
   if (indexRobot > -1) {
     
-  while (someClient.available() > 35) {
+    while (someClient.available() > 35) {
+    
+       data[indexRobot] = someClient.readStringUntil(10);   
+       data[indexRobot] = data[indexRobot].replaceAll("\\n", "");
+       data[indexRobot] = data[indexRobot].replaceAll("\\r", "");
+       
+       if (data[indexRobot].indexOf("X") == 0) {
+            
+          try{
+            x[indexRobot] = Integer.valueOf(data[indexRobot].substring(1))*(-1);
+          }
+          catch (NumberFormatException e) {   
+            println("err x");
+          }
+        }
+        
+        
+        if (data[indexRobot].indexOf("Y") == 0) {
+          try {
+            y[indexRobot] = Integer.valueOf(data[indexRobot].substring(1));
+          }
+          catch (NumberFormatException e) {        
+            println("err y");
+          }
+        }
   
-     data[indexRobot] = someClient.readStringUntil(10);   
-     data[indexRobot] = data[indexRobot].replaceAll("\\n", "");
-     data[indexRobot] = data[indexRobot].replaceAll("\\r", "");
-     
-     if (data[indexRobot].indexOf("X") == 0) {
-          
-        try{
-          x[indexRobot] = Integer.valueOf(data[indexRobot].substring(1))*(-1);
+  
+        if (data[indexRobot].indexOf("O") == 0) {
+          try {
+            dir[indexRobot] = Integer.valueOf(data[indexRobot].substring(1));
+            //dir[indexRobot] = dir[indexRobot] + 40;
+            //dir[indexRobot] = (dir[indexRobot] / 6 +180) % 360;
+            //2260/360 grade = 6.27
+            dir[indexRobot] = (int)(dir[indexRobot] / 6.27 +180) % 360;
+            
+          }
+          catch (NumberFormatException e) {        
+            println("err o");
+          }
+  
         }
-        catch (NumberFormatException e) {   
-          println("err x");
-        }
-      }
-      
-      
-      if (data[indexRobot].indexOf("Y") == 0) {
-        //println(lines[i].substring(1));
-        try{
-        y[indexRobot] = Integer.valueOf(data[indexRobot].substring(1));
-            }
-        catch (NumberFormatException e) {        
-          println("err y");
-        }
-
-      }
-
-
-      if (data[indexRobot].indexOf("O") == 0) {
-        try {
-        dir[indexRobot] = Integer.valueOf(data[indexRobot].substring(1));
-        dir[indexRobot] = dir[indexRobot] +60;
-        dir[indexRobot] = (dir[indexRobot] / 6 +180) % 360;
-        }
-        catch (NumberFormatException e) {        
-          println("err o");
-        }
-
-      }
-  } 
+    } 
   }
 
 }
@@ -297,29 +397,10 @@ void updateGoal() {
 void stop() {
   for (int i = 0;i < robotNR;i++)
   {
-    cPort23[i].stop(); //c
-    cPort24[i].stop(); //c1
+    cPort23[i].stop();
+    cPort24[i].stop();
   }
 } 
-
-
-void processRotitInLoc() {
-    if (rotireInLocClockwise == 1) {
-     rotireInLocClockwise = 0;
-     rotitInLoc(2,1);
-  }
-   
-  if (rotireInLocAntiClockwise == 1) {
-     rotireInLocAntiClockwise = 0;
-     rotitInLoc(2,2);
-  }
-
-  if (rotireInLocStop == 1) {
-     rotireInLocStop = 0;
-     rotitInLoc(2,3);
-  }
-
-}
 
 
 void keyPressed() {
@@ -330,8 +411,8 @@ void keyPressed() {
     for (int i=0;i<robotNR;i++)
     {
       if (cPort24[i].active()) {
-        cPort24[i].write("iw 0 15 0\r\n");
-        cPort24[i].write("iw 0 12 0\r\n");
+        cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
+        cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\r\n");
       }
     }
   }
@@ -340,8 +421,11 @@ void keyPressed() {
   if (key=='w' || key == 'W') { //exit!
     for (int i=0;i<robotNR;i++)
     {
-      cPort24[i].write("iw 0 15 0\r\n");
-      cPort24[i].write("iw 0 12 0\r\n");
+      cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
+      cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+      delay(10);
+      leds.TurnOffHalf1(cPort24[i]);
+      leds.TurnOffHalf2(cPort24[i]);
     }
   }
   
@@ -366,8 +450,9 @@ void keyPressed() {
   }
    
        if (key=='n' || key == 'N') {
-         if (stage<3) { stage++; }
+         if (stage<puncte.length-1) { stage++; }
          else {stage = 0;}
+         updateGoal();
   }
    
    
@@ -380,14 +465,14 @@ void disconnectEvent(Client someClient) {
 
 void mouseDragged()
 {
-  config.setTranslateX(config.getTranslateX() + mouseX - pmouseX);
-  config.setTranslateY(config.getTranslateY() + mouseY - pmouseY);  
-  cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
+    config.setTranslateX(config.getTranslateX() + mouseX - pmouseX);
+    config.setTranslateY(config.getTranslateY() + mouseY - pmouseY);  
+    cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
 }
 
 
 void mouseWheel(MouseEvent event) {
-  float e = event.getCount();
-  config.setZoom(config.getZoom() + e);
-  cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
+    float e = event.getCount();
+    config.setZoom(config.getZoom() + e);
+    cf.UpdateXYZ(config.getTranslateX(), config.getTranslateY(), config.getZoom());
 }

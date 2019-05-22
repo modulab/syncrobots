@@ -52,7 +52,7 @@ class Blocks {
 
     private void setupScenario() {
         // Specify the global time step of the simulation.
-        instance.setTimeStep(1.55);
+        instance.setTimeStep(34.55);
 
         // Specify the default parameters for agents that are subsequently
         // added.

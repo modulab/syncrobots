@@ -54,9 +54,31 @@ class ControlFrame extends PApplet {
     cp5.addSlider("Raza de ocolit")
        .plugTo(parent, "razaDeOcolit")
        .setBroadcast(false)
-       .setRange(0, 100)
-       .setValue(50)
+       .setRange(0, 200)
+       .setValue(120)
        .setPosition(50, 130)
+       .setSize(200, 30)
+       .setBroadcast(true)
+       ;
+
+
+    cp5.addSlider("Motor Speed")
+       .plugTo(parent, "motorSpeed")
+       .setBroadcast(false)
+       .setRange(200, 1000)
+       .setValue(1000)
+       .setPosition(50, 170)
+       .setSize(200, 30)
+       .setBroadcast(true)
+       ;
+
+
+    cp5.addSlider("Demultiplicator")
+       .plugTo(parent, "demultiplicatorMotor")
+       .setBroadcast(false)
+       .setRange(1, 4)
+       .setValue(2)
+       .setPosition(50, 200)
        .setSize(200, 30)
        .setBroadcast(true)
        ;

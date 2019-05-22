@@ -3,10 +3,19 @@ class Config {
   int translateX = 480;
   int translateY = 180;
   float zoom = 3;
+  public int motorLeftFwd = 14;
+  public int motorRightFwd = 5;
+  
+  public int motorLeftRev = 12;
+  public int motorRightRev = 4;  
+
 
   public String[] ips = {
-      //"192.168.1.18"
-      "192.168.1.145"
+      "192.168.1.15",
+      "192.168.1.27",
+      "192.168.1.36",
+      "192.168.1.220",
+      "192.168.1.58"
   };
 
   void setZoom(float z) {
