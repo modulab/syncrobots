@@ -173,6 +173,7 @@ void draw0x0() {
 
 void drawLimits() {
   println("!!!!Sa nu uiti sa desenezi si sa setezi limitele!!!!!!");
+  println("!!!!Sa incercam sa injumatatim steptime si sa rulam de doua ori dostep!!!!!!");
   //documentatia e in Simulation.pde
 }
 
