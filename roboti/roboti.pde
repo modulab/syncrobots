@@ -340,41 +340,6 @@ void keyPressed() {
   }
 
 
-  if (key=='a' || key == 'A') {
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightFwd + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftRev + " 800\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightRev + " 800\r\n");
-  }
-
-  if (key=='s' || key == 'S') {
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftRev + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightRev + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftFwd + " 800\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightFwd + " 800\r\n");
-  }
-
-  if (key=='d' || key == 'D') {
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftRev + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightRev + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
-    delay(10);
-    cPort24[0].write("iw 0 " + config.motorRightFwd + " 0\r\n");
-  }
-
-
-
   if (key=='n' || key == 'N') {
     if (stage<puncte.length-1) { 
       stage++;
