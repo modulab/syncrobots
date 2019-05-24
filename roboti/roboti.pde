@@ -32,10 +32,8 @@ String[] data =new String[robotNR];
 
 //[stage][x][y]
 int[][][] puncte = {
-  {{741, 1221}, {841, 945}, {-667, 1221}, {-530, 2258}, {976, 2024}}, 
-  {{741, 1221}, {-667, 1221}, {-530, 2258}, {976, 2024}, {841, 945}}, 
-  {{741, 1221}, {-530, 2258}, {976, 2024}, {841, 945}, {-667, 1221}}, 
-  {{741, 1221}, {976, 2024}, {841, 945}, {-667, 1221}, {-530, 2258}}
+  {{188,1159},{6,1411},{464,1157},{340,1453}},
+  {{201,1537},{79,1122},{468,1375},{-135,1372}}
 };
 
 boolean staging = false;
@@ -173,7 +171,6 @@ void draw0x0() {
 
 void drawLimits() {
   println("!!!!Sa nu uiti sa desenezi si sa setezi limitele!!!!!!");
-  println("!!!!Sa incercam sa injumatatim steptime si sa rulam de doua ori dostep!!!!!!");
   //documentatia e in Simulation.pde
 }
 
@@ -280,8 +277,8 @@ void keyPressed() {
     {
 
       if (cPort24[i] != null && cPort24[i].active()) {
-        cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
-        cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+        cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\n");
+        cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\n");
       }
     }
   }
@@ -291,8 +288,8 @@ void keyPressed() {
     for (int i=0; i<robotNR; i++)
     {
       if (cPort24[i]!=null) {
-        cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\r\n");
-        cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\r\n");
+        cPort24[i].write("iw 0 " + config.motorLeftFwd + " 0\n");
+        cPort24[i].write("iw 0 " + config.motorRightFwd + " 0\n");
         delay(10);
         leds.TurnOffHalf1(cPort24[i]);
         leds.TurnOffHalf2(cPort24[i]);
@@ -339,6 +336,7 @@ void keyPressed() {
     }
     println("},");
   }
+
 
 
   if (key=='n' || key == 'N') {

@@ -5,11 +5,14 @@ class Robot {
   public boolean goalReached = false;
   String ip="";
   int direction = 0;
-  Motor engine = new Motor();
+  private Motor engine = new Motor();
   Client cPort24;
   int histeresys = 0;
   boolean isLeader = false;
   int idRobot;
+  
+  ArrayList<String> toSend;
+  
 
   public void init(Client c, String _ip, int id) {
     x = 0;
@@ -19,6 +22,7 @@ class Robot {
     cPort24 = c;
     idRobot = id;
     engine.init(cPort24);
+    toSend = new ArrayList<String>();
   }
 
 
@@ -71,10 +75,11 @@ class Robot {
 
     if (rotireInLocClockwise) {
       direction = 3;
+      println(dir);
       if (dir > 20 ) {
-        engine.start(0, 0, direction);
+        engine.start(idRobot,0, 0, direction);
       } else {
-        engine.stop();
+        engine.stop(idRobot);
       }
       return;
     }
@@ -103,24 +108,24 @@ class Robot {
 
       if (dist(x, y, goalX, goalY) < 200) {
         if (cPort24!=null && cPort24.active()) {
-          engine.stop();
+          engine.stop(idRobot);
         }
       }
     } 
 
     if (dist(x, y, goalX, goalY) < 30 && dist(x, y, (float)newX, (float)newY) < distantaSafe && !swarmMode) {
       if (cPort24!=null && cPort24.active()) {
-        engine.stop();
+        engine.stop(idRobot);
       }
       goalReached = true;
     } else if (((360 - (float)(spre - dir)) % 360) < 180) {  // corect !
       if (cPort24!=null && cPort24.active()) {
-        engine.start(motor, newMotorSpeed, direction);
+        engine.start(idRobot,motor, newMotorSpeed, direction);
       }
       goalReached = false;
     } else {
       if (cPort24!=null && cPort24.active()) {
-        engine.start(newMotorSpeed, motor, direction);
+        engine.start(idRobot,newMotorSpeed, motor, direction);
       }
       goalReached = false;
     }
@@ -164,7 +169,7 @@ class Robot {
   }
 
   void stop() {
-    engine.stop();
+    engine.stop(idRobot);
   }
 
   void sendReset() {
