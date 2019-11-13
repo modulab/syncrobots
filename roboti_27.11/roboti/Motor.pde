@@ -27,8 +27,8 @@ class Motor {
    }
    
    if (direction == 2) {
-      //startMotorPiruieta(max(leftPwm,rightPwm));
-      startMotorPiruieta(0,1000);
+      startMotorPiruieta(0,max(leftPwm,rightPwm));
+      //startMotorPiruieta(0,1000);
    }
 
    if (direction == 3) { //pentru aliniere 180grade
@@ -44,22 +44,27 @@ class Motor {
    idRobot = _idRobot;
    stopMotorLFwd();
    stopMotorLRev();
+   delay(10);
    stopMotorRFwd();
    stopMotorRRev();
  }
  
  
    private void startMotorPiruieta(int pwmValue1, int pwmValue) {
-    if (pwmValue == motorLRevPwm && pwmValue == motorRFwdPwm) return; // daca e aceeasi valoare ca data trecuta nu mai trimitem
+   if (pwmValue != motorLRevPwm && pwmValue != motorRFwdPwm) 
+   {
+   //return; // daca e aceeasi valoare ca data trecuta nu mai trimitem
     
     stopMotorLRev();
     stopMotorRFwd();
+    delay(10);
     stopMotorLFwd();
     stopMotorRRev();
-
+   }
+delay(10);
     sendMotor("iw 0 " + config.motorLeftRev + " " + pwmValue + "\r\n");
     sendMotor("iw 0 " + config.motorRightFwd + " " + pwmValue + "\r\n");
-
+delay(10);
     sendMotor("iw 0 " + config.motorLeftFwd + " " + pwmValue1 + "\r\n");
     sendMotor("iw 0 " + config.motorRightRev + " " + pwmValue1 + "\r\n");
 

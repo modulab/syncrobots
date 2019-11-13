@@ -41,7 +41,7 @@ class Robot {
     float deltaY = ((float)y - (float)newY);
     float spre = 0;
 
-    if (deltaX<0 && deltaY<0) {
+    if (deltaX < 0 && deltaY < 0) {
       spre = 180 + (degrees(atan(deltaX/deltaY)));
     } else if (deltaX>0 && deltaY<0) {
       spre = 180 + (degrees(atan(deltaX/deltaY)));
@@ -71,9 +71,6 @@ class Robot {
 
 
 
-    if (dist(x, y, goalX, goalY) < 100 && unghiReal > 30) {
-      direction = 2;
-    }
 
 
     if (rotireInLocClockwise) {
@@ -89,22 +86,32 @@ class Robot {
 
 
 
-    int newMotorSpeed = motorSpeed;
-    if (dist(x, y, goalX, goalY) < 100) {
-      newMotorSpeed /=2/1.7;
-    }
 
 
+int newMotorSpeed = motorSpeed;
     int distantaSafe = 40;
     for (int k = 0; k < robotNR; k++) {
+      //println(dist(x, y, robot[k].x, robot[k].y));
       if (dist(x, y, robot[k].x, robot[k].y) < razaDeOcolit && k != idRobot) {
-        distantaSafe = 30;
+        distantaSafe = 20;
       }
     }
 
+    if (distantaSafe == 40) {          
+          if (dist(x, y, goalX, goalY) < 150) {
+            newMotorSpeed /=2/1.7;
+          }
+    }
+
+    if (dist(x, y, goalX, goalY) < 100 && unghiReal > 90) {
+      newMotorSpeed = motorSpeed;
+      newMotorSpeed /=4;
+    }
+
+
 
     float coeficient = abs(90 - unghiReal) / 90;  //e intre 0 si 1
-    coeficient = coeficient*coeficient*coeficient;
+    coeficient = coeficient*coeficient*coeficient*coeficient*coeficient;
     int motor = 450 + (int)((newMotorSpeed - 450 + fineTuneMotors) * coeficient);
 
     if (swarmMode) {
@@ -115,9 +122,14 @@ class Robot {
         }
       }
     } 
-
-    if (dist(x, y, goalX, goalY) < 30 && dist(x, y, (float)newX, (float)newY) < distantaSafe && !swarmMode) {
+  
+    //println(dist(x, y, goalX, goalY) + "   " + dist(x, y, (float)newX, (float)newY));
+//println(dist(x, y, goalX, goalY)+ " " + dist(x, y, (float)newX, (float)newY));
+   // if (dist(x, y, goalX, goalY) < 30 && dist(x, y, (float)newX, (float)newY) > distantaSafe && !swarmMode) {
+      if (dist(x, y, goalX, goalY) < 30 && dist(x, y, (float)newX, (float)newY) < distantaSafe) {
+       
       if (cPort24!=null && cPort24.active()) {
+        
         engine.stop(idRobot);
       }
       goalReached = true;
@@ -127,6 +139,7 @@ class Robot {
       }
       goalReached = false;
     } else {
+       
       if (cPort24!=null && cPort24.active()) {
         engine.start(idRobot,newMotorSpeed, motor, direction);
       }

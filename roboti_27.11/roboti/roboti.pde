@@ -33,13 +33,16 @@ int robotSelected = -1;
 
 String[] data =new String[robotNR];
 
-//[stage][x][y]
+//[stage][x][y] {{200,2214},{875,1671},{1045,1967},{754,1487},{317,2045},{660,875},{74,1339},{633,1783},},
+//{{457,1505},{80,2140},{1,1875},{333,1217},{-66,1619},{224,1516},{74,1340},{315,1739},},
+
+
 int[][][] puncte = {
-  {{-104,495},{-381,522},{-189,618},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}},
-  {{201,1537},{79,1122},{468,1375},{-135,1372}}
+  {{914,1019},{784,1035},{702,1188},{-226,1803},{-51,1687},{327,1606},{-113,1568},{1031,1125},{-283,1626},{-130,1950},{355,1768},{205,1823},{114,1619},{622,956},{72,1461},{47,1876}},
+  {{353,1811},{165,1674},{341,1186},{-274,1850},{22,1523},{670,1551},{-156,1350},{21,1823},{-284,1581},{-44,2101},{676,1792},{530,2042},{288,1527},{514,1342},{104,1242},{258,2125}},
 };
 
-boolean staging = false;
+boolean staging = true;
 boolean swarmMode = false;
 boolean rotireInLocClockwise = false;
 boolean[] stageComplete = {false, false, false, false, false};
@@ -101,17 +104,17 @@ void draw() {
 
   //blocks.updateVisualization();
   blocks.setPreferredVelocities();  
-  instance.doStep();
+  //instance.doStep();
 
   for (int i=0; i<robotNR; i++)
   {
 
-    /*
+    
       translate((float)instance.getAgentPosition(i).getX()/config.getZoom() + config.getTranslateX(), 
      (float)instance.getAgentPosition(i).getY()/config.getZoom() + config.getTranslateY()
      );
      ellipse(0,0,10,10);
-     */
+     
 
     if (!esc) {
 
@@ -191,52 +194,22 @@ void drawLimits() {
 void clientEvent(Client someClient) {
 
   int indexRobot = -1;
-/*
-  for (int i = 0; i < robotNR; i++)
-  {
-    if (someClient == cPort24[i]) {
-      indexRobot = i;
-    }
-  }
-
-  if (indexRobot > -1 && someClient == cPort24[indexRobot]) {
-    if (someClient.available() > 0) {
-      if (someClient.readChar() == 'p') {
-        someClient.clear();
-        robot[indexRobot].engine.sentSuccess = true;
-      } else { 
-        return;
-      }
-    }
-  }
-
-  if (indexRobot != -1) return;
-*/
 
   for (int i=0; i<robotNR; i++)
   {
     if (someClient == cPort23[i]) {
       indexRobot = i;
-    }
-  }
-
-  for (int i=0; i<robotNR; i++)
-  {
-    if (someClient == cPort24[i]) {
-      String response = someClient.readString();
-      println(i + " " + response);
-      robot[i].readyToSend = true;
-      if (response.indexOf("analog")!=-1) {
-        println(scanNumber(response));
-      }
-      // "analog input (adc): [xxxxx]
+      break;
     }
   }
 
 
   if (indexRobot > -1) {
 
-    while (someClient.available() > 35) {
+    boolean xRead = false;
+    boolean yRead = false;
+    boolean oRead = false;
+    while (someClient.available() > 20) {
 
       data[indexRobot] = someClient.readStringUntil(10);   
       data[indexRobot] = data[indexRobot].replaceAll("\\n", "");
@@ -244,12 +217,15 @@ void clientEvent(Client someClient) {
 
       if (indexRobot==1) {
         //println(someClient.available());
+       // println(data[indexRobot]);
       }
+
 
       if (data[indexRobot].indexOf("X") == 0) {
 
         try {
-          robot[indexRobot].x = Integer.valueOf(data[indexRobot].substring(1))*(-1);
+          robot[indexRobot].x = Integer.valueOf(data[indexRobot].substring(1)) * (-1);
+          xRead = true;
         }
         catch (NumberFormatException e) {   
           println("err x");
@@ -260,6 +236,7 @@ void clientEvent(Client someClient) {
       if (data[indexRobot].indexOf("Y") == 0) {
         try {
           robot[indexRobot].y = Integer.valueOf(data[indexRobot].substring(1));
+          yRead = true;
         }
         catch (NumberFormatException e) {        
           println("err y");
@@ -270,12 +247,19 @@ void clientEvent(Client someClient) {
       if (data[indexRobot].indexOf("O") == 0) {
         try {
           int tmpDir = Integer.valueOf(data[indexRobot].substring(1));
-          robot[indexRobot].dir = (int)(tmpDir / 6.27 +180) % 360;
+          robot[indexRobot].dir = (int)(tmpDir / 6.27 + 180) % 360;
+          oRead = true;
         }
         catch (NumberFormatException e) {        
           println("err o");
         }
       }
+      
+      if (xRead && yRead && oRead) {
+        someClient.clear();
+        break;
+      }
+      
     }
   }
 }

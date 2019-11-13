@@ -3,7 +3,7 @@ import java.util.Iterator;
 class ClientThread extends Thread {
   int clientIndex;
   PApplet app;
-  public Boolean readyToSend;
+
   public ClientThread(int index, PApplet app) {
     this.clientIndex = index;
     this.app = app;
@@ -42,8 +42,8 @@ class ClientThread extends Thread {
 
       while (!robot[clientIndex].toSend.isEmpty()) {
          String xxx = robot[clientIndex].toSend.poll();
+         //println(xxx);
          cPort24[clientIndex].write(xxx);
-         robot[clientIndex].readyToSend = false;
       }
       
       /*
