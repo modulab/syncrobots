@@ -49,3 +49,4 @@ io.6.0.flags=128
 io.6.1.flags=128
 io.0.0.mode=3
 io.0.0.llmode=3
+uart.baud.0=9600
