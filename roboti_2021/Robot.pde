@@ -1,4 +1,4 @@
-import java.util.concurrent.*; 
+import java.util.concurrent.*;
 class Robot {
 
   public int x, y, dir;
@@ -24,6 +24,7 @@ class Robot {
     idRobot = id;
     engine.init();
     toSend = new ConcurrentLinkedQueue<String>();
+    
   }
 
 

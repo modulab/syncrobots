@@ -52,12 +52,11 @@ class Blocks {
 
     private void setupScenario() {
         // Specify the global time step of the simulation.
-        //instance.setTimeStep(34.55);
         instance.setTimeStep(34.55);
 
         // Specify the default parameters for agents that are subsequently
         // added.
-        instance.setAgentDefaults(185.0, 20, 15.0, 15.0, 30.0, 52.0, Vector2D.ZERO);
+        instance.setAgentDefaults(185.0, 20, 15.0, 15.0, 30.0, 2.0, Vector2D.ZERO);
 
         // Add agents, specifying their start position, and store their goals on
         // the opposite side of the environment.
@@ -126,12 +125,6 @@ class Blocks {
         obstacle3.add(new Vector2D(40.0, -10.0));
         obstacle3.add(new Vector2D(10.0, -10.0));
         instance.addObstacle(obstacle3);
-*/
-
-     
-     //To add a "negative" obstacle,
-     //* e.g., a bounding polygon around the environment, the vertices should be
-     //* listed in clockwise order.
 
         final List<Vector2D> obstacle4 = new ArrayList<Vector2D>();
         obstacle4.add(new Vector2D(-10.0, -40.0));
@@ -139,8 +132,10 @@ class Blocks {
         obstacle4.add(new Vector2D(-40.0, -10.0));
         obstacle4.add(new Vector2D(-40.0, -40.0));
         instance.addObstacle(obstacle4);
-
-        instance.processObstacles();
+*/
+        // Process the obstacles so that they are accounted for in the
+        // simulation.
+        //instance.processObstacles();
     }
 
     private void updateVisualization() {
@@ -178,6 +173,7 @@ private void updateGoal(int agentNr, float x, float y) {
         for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
             Vector2D goalVector = goals.get(agentNo).subtract(instance.getAgentPosition(agentNo));
             final double lengthSq = goalVector.getNormSq();
+
             if (lengthSq > 1.0) {
                 goalVector = goalVector.scalarMultiply(1.0 / FastMath.sqrt(lengthSq));
             }
@@ -185,10 +181,10 @@ private void updateGoal(int agentNr, float x, float y) {
             instance.setAgentPreferredVelocity(agentNo, goalVector);
 
             // Perturb a little to avoid deadlocks due to perfect symmetry.
-            //final double angle = random.nextDouble() * 2.0 * FastMath.PI;
-            //final double distance = random.nextDouble() * 0.0001;
-            final double angle = 0;
-            final double distance = 0;
+            final double angle = random.nextDouble() * 2.0 * FastMath.PI;
+            final double distance = random.nextDouble() * 0.0001;
+            //final double angle = 0;
+            //final double distance = 0;
 
 
             instance.setAgentPreferredVelocity(agentNo, instance.getAgentPreferredVelocity(agentNo).add(new Vector2D(FastMath.cos(angle), FastMath.sin(angle)).scalarMultiply(distance)));
@@ -198,7 +194,7 @@ private void updateGoal(int agentNr, float x, float y) {
     private boolean reachedGoal() {
         // Check if all agents have reached their goals.
         for (int agentNo = 0; agentNo < instance.getNumAgents(); agentNo++) {
-            if (instance.getAgentPosition(agentNo).distanceSq(goals.get(agentNo)) > 10.0) {
+            if (instance.getAgentPosition(agentNo).distanceSq(goals.get(agentNo)) > 400.0) {
                 return false;
             }
         }

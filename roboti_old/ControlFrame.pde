@@ -35,7 +35,7 @@ class ControlFrame extends PApplet {
        
     sh = cp5.addSlider("Transpune Y")
        .plugTo(parent, "translateY")
-       .setRange(-500, 500)
+       .setRange(0, 1000)
        .setValue(config.getTranslateY())
        .setPosition(50, 55)
        .setSize(200, 10)
@@ -54,20 +54,10 @@ class ControlFrame extends PApplet {
     cp5.addSlider("Raza de ocolit")
        .plugTo(parent, "razaDeOcolit")
        .setBroadcast(false)
-       .setRange(0, 250)
-       .setValue(197)
+       .setRange(0, 200)
+       .setValue(80)
        .setPosition(50, 130)
        .setSize(200, 30)
-       .setBroadcast(true)
-       ;
-
-    cp5.addSlider("Raza Robot")
-       .plugTo(parent, "razaRobot")
-       .setBroadcast(false)
-       .setRange(0, 200)
-       .setValue(107)
-       .setPosition(50, 160)
-       .setSize(200, 15)
        .setBroadcast(true)
        ;
 
@@ -75,49 +65,30 @@ class ControlFrame extends PApplet {
     cp5.addSlider("Motor Speed")
        .plugTo(parent, "motorSpeed")
        .setBroadcast(false)
-       .setRange(400, 1000)
-       .setValue(870)
-       .setPosition(50, 190)
+       .setRange(200, 1000)
+       .setValue(750)
+       .setPosition(50, 170)
        .setSize(200, 30)
        .setBroadcast(true)
        ;
 
 
-
-
-
-    cp5.addSlider("Fine Tune Motors")
-       .plugTo(parent, "fineTuneMotors")
+    cp5.addSlider("Demultiplicator")
+       .plugTo(parent, "demultiplicatorMotor")
        .setBroadcast(false)
-       .setRange(0, 50)
-       .setValue(0)
-       .setPosition(50, 220)
+       .setRange(1, 4)
+       .setValue(2)
+       .setPosition(50, 200)
        .setSize(200, 30)
        .setBroadcast(true)
        ;
 
 
-  cp5.addToggle("Staging")
-       .plugTo(parent, "staging")
-       .setPosition(50,260)
-       .setSize(15,15)
-       .setState(false)
-       ;
-
-
-  cp5.addToggle("Swarm Mode")
-       .plugTo(parent, "swarmMode")
-       .setPosition(50,290)
-       .setSize(15,15)
-       .setState(false)
-       ;
-
-
-   cp5.addToggle("Rotire in loc clockwise")
+   cp5.addButton("Rotire in loc clockwise")
      .setLabel("Rotire in loc clockwise")
      .plugTo(parent, "rotireInLocClockwise")
      .setBroadcast(false)
-     .setValue(false)
+     .setValue(1)
      .setPosition(20,400)
      .setSize(120,19)
      .setBroadcast(true)
@@ -159,22 +130,14 @@ class ControlFrame extends PApplet {
       
      for (int i = 0; i < config.ips.length; i++) {
          but[i] = cp5.addButton(config.ips[i])
-             .setLabel(config.ips[i])
-            .setValue(i)
+            .setValue(1)
             .setPosition(5 + i%5*80, 600+(int)(i/5)*25)
-            .setSize(70, 20)
-            .onPress(new CallbackListener() { // a callback function that will be called onPress
-            public void controlEvent(CallbackEvent theEvent) {
-              String name = theEvent.getController().getName();
-              int value = (int)theEvent.getController().getValue();
-              println("got a press from a " + name + ", the value is " + value);
-              robot[value].sendReset();
-            }});
-     };
+            .setSize(70, 20);
+       
+     }
+       
        
   }
-
-
 
 
 public void UpdateXYZ(int x, int y, float z) {
